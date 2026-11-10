@@ -1,6 +1,55 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Parallel MoE: 15-418/618 Final Project</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 2em auto; padding: 0 1em; line-height: 1.5; }
+        .update { border-left: 3px solid #888; padding-left: 1em; margin-bottom: 1.5em; }
+        .date { color: #666; font-size: 0.9em; }
+    </style>
+</head>
 <body>
-    <h1>Hello World! Welcome to Evelyn Wu and Srikar Govindaraju's 15418/618 Final Project Page!.</h1>
+    <h1>Parallelizing Mixture-of-Experts Deployments using Data, Expert, and Tensor Parallelism</h1>
+    <p>Evelyn Wu (evelynwu) and Srikar Govindaraju (srikarg) &mdash; 15-418/618 Final Project, Fall 2026</p>
+
+    <h2>Summary</h2>
+    <p>
+        We are implementing the forward pass of a Mixture-of-Experts (MoE) layer from scratch in C++ and CUDA,
+        distributed with MPI across up to 128 NVIDIA V100 GPUs on PSC Bridges-2. Each token goes through a
+        top-1 router (in the style of Switch Transformer), with capacity-based token dropping, and is then
+        processed by its chosen expert FFN.
+    </p>
+    <p>We compare three parallelization strategies on the same model:</p>
+    <ul>
+        <li><b>Data parallelism (DP):</b> every GPU holds the full layer and processes its own share of tokens. This is the baseline.</li>
+        <li><b>Expert parallelism (EP):</b> experts are split across GPUs, and tokens are sent to their expert's GPU with an MPI all-to-all.</li>
+        <li><b>Tensor parallelism (TP):</b> every expert's weights are sliced across all GPUs (Megatron-LM style), so the load stays balanced no matter how tokens are routed.</li>
+    </ul>
+    <p>
+        The main question is how routing skew changes the tradeoff: EP communicates little but suffers under
+        load imbalance, while TP is balanced by construction but moves much more data. We also plan to overlap
+        communication with computation, and as a stretch goal add the backward pass, top-2 routing, and hybrid EP+TP.
+    </p>
+
+    <h2>Updates &amp; Progress Reports</h2>
+    <!-- Add new updates at the top. Copy this block for each new entry. -->
+    <div class="update">
+        <div class="date">November 9, 2026</div>
+        <h3>Project Proposal Submitted</h3>
+        <p>Submitted our project proposal. Next up: the single-GPU forward pass (router, token dropping, dispatch, expert FFNs with cuBLAS).</p>
+    </div>
+
+    <h2>Schedule</h2>
+    <ul>
+        <li><b>Nov 9&ndash;15:</b> Single-GPU forward pass and PyTorch reference</li>
+        <li><b>Nov 16&ndash;22:</b> Expert parallelism and benchmarking</li>
+        <li><b>Nov 23:</b> Milestone report (DP and EP working)</li>
+        <li><b>Nov 23&ndash;29:</b> Tensor parallelism</li>
+        <li><b>Nov 30&ndash;Dec 5:</b> EP vs. TP analysis, stretch goals</li>
+        <li><b>Dec 6&ndash;10:</b> Final experiments and report</li>
+        <li><b>Dec 11:</b> Poster session</li>
+    </ul>
 </body>
 </html>
