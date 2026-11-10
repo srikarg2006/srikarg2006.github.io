@@ -16,21 +16,22 @@
 
     <h2>Summary</h2>
     <p>
-        We are implementing the forward pass of a Mixture-of-Experts (MoE) layer from scratch in C++ and CUDA,
-        distributed with MPI across up to 128 NVIDIA V100 GPUs on PSC Bridges-2. Each token goes through a
-        top-1 router (in the style of Switch Transformer), with capacity-based token dropping, and is then
-        processed by its chosen expert FFN.
+        We will implement the forward pass of a Mixture-of-Experts (MoE) layer from scratch in C++ and CUDA,
+        distributed with MPI in multi-GPU systems on the GHC and PSC machines. Each token goes through a
+        top-1 router, with capacity-based token dropping, and is then processed by its chosen expert FFN.
     </p>
-    <p>We compare three parallelization strategies on the same model:</p>
+    <p>We will compare three parallelization strategies on the same model:</p>
     <ul>
         <li><b>Data parallelism (DP):</b> every GPU holds the full layer and processes its own share of tokens. This is the baseline.</li>
         <li><b>Expert parallelism (EP):</b> experts are split across GPUs, and tokens are sent to their expert's GPU with an MPI all-to-all.</li>
-        <li><b>Tensor parallelism (TP):</b> every expert's weights are sliced across all GPUs (Megatron-LM style), so the load stays balanced no matter how tokens are routed.</li>
+        <li><b>Tensor parallelism (TP):</b> every expert's weights are sliced across all GPUs, so the load stays balanced no matter how tokens are routed.</li>
     </ul>
     <p>
-        The main question is how routing skew changes the tradeoff: EP communicates little but suffers under
-        load imbalance, while TP is balanced by construction but moves much more data. We also plan to overlap
-        communication with computation, and as a stretch goal add the backward pass, top-2 routing, and hybrid EP+TP.
+        We want to explore how different routing skews change the tradeoffs. EP has less communication but is prone
+        to load imbalances when a few experts are chosen repeatedly. TP, on the other hand, ensures a more even 
+        distribution of compuation across GPUs, but requires greater communication. We also hope to implement an 
+        architecture where we overlap communication costs with computation. Adding a backward pass, top-2 (or k)
+        routing, and hybrid EP + IP are stretch goals that we will tackle if time permits. 
     </p>
 
     <h2>Updates &amp; Progress Reports</h2>
